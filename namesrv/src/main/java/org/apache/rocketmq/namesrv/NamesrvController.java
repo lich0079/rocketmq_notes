@@ -63,8 +63,11 @@ public class NamesrvController {
     public NamesrvController(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig) {
         this.namesrvConfig = namesrvConfig;
         this.nettyServerConfig = nettyServerConfig;
+        // kvConfigPath=/Users/claire/namesrv/kvConfig.json
         this.kvConfigManager = new KVConfigManager(this);
+        // routeInfo store contain 5 hashMap
         this.routeInfoManager = new RouteInfoManager();
+        // listen broken connection state and update routeInfo
         this.brokerHousekeepingService = new BrokerHousekeepingService(this);
         this.configuration = new Configuration(
             log,
@@ -74,16 +77,16 @@ public class NamesrvController {
     }
 
     public boolean initialize() {
-
+        /// load namesrv/namesrv.properties file into KVConfigSerializeWrapper
         this.kvConfigManager.load();
 
         this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
-
+        // serverWorkerThreads=8
         this.remotingExecutor =
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
-
+        // DefaultRequestProcessor is the handler for all incoming request
         this.registerProcessor();
-
+        // scan not active broker every 10 sec
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -91,7 +94,7 @@ public class NamesrvController {
                 NamesrvController.this.routeInfoManager.scanNotActiveBroker();
             }
         }, 5, 10, TimeUnit.SECONDS);
-
+        // print all kv config every 10 sec
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override

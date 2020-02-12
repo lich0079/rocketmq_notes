@@ -324,6 +324,7 @@ public class MixAll {
         return properties;
     }
 
+    // find all field in object, see if Properties contain that field then set it
     public static void properties2Object(final Properties p, final Object object) {
         Method[] methods = object.getClass().getMethods();
         for (Method method : methods) {
@@ -333,6 +334,7 @@ public class MixAll {
                     String tmp = mn.substring(4);
                     String first = mn.substring(3, 4);
 
+                    // key is the field name in object
                     String key = first.toLowerCase() + tmp;
                     String property = p.getProperty(key);
                     if (property != null) {

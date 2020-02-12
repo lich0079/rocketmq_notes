@@ -81,7 +81,10 @@ public class NamesrvStartup {
 
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
+        // hard code 9876, but can be override by config file in configStorePath
         nettyServerConfig.setListenPort(9876);
+        // if user provide c path then override below default store path
+        // configStorePath = System.getProperty("user.home")/namesrv/namesrv.properties;
         if (commandLine.hasOption('c')) {
             String file = commandLine.getOptionValue('c');
             if (file != null) {
@@ -99,12 +102,35 @@ public class NamesrvStartup {
         }
 
         if (commandLine.hasOption('p')) {
+            /**
+             * Print all config item
+             *
+             * rocketmqHome=/Users/xxx/git/rocketmq/distribution/target/rocketmq-4.7.0-SNAPSHOT/rocketmq-4.7.0-SNAPSHOT
+             * kvConfigPath=/Users/xxx/namesrv/kvConfig.json
+             * configStorePath=/Users/xxx/namesrv/namesrv.properties
+             * productEnvName=center
+             * clusterTest=false
+             * orderMessageEnable=false
+             * listenPort=9876
+             *
+             * serverWorkerThreads=8
+             * serverCallbackExecutorThreads=0
+             * serverSelectorThreads=3
+             * serverOnewaySemaphoreValue=256
+             * serverAsyncSemaphoreValue=64
+             * serverChannelMaxIdleTimeSeconds=120
+             * serverSocketSndBufSize=65535
+             * serverSocketRcvBufSize=65535
+             * serverPooledByteBufAllocatorEnable=true
+             * useEpollNativeSelector=false
+             */
             InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_CONSOLE_NAME);
             MixAll.printObjectProperties(console, namesrvConfig);
             MixAll.printObjectProperties(console, nettyServerConfig);
             System.exit(0);
         }
 
+        // try to get property from commandLine to override default namesrvConfig
         MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);
 
         if (null == namesrvConfig.getRocketmqHome()) {
@@ -120,12 +146,14 @@ public class NamesrvStartup {
 
         log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
+        // print config
         MixAll.printObjectProperties(log, namesrvConfig);
         MixAll.printObjectProperties(log, nettyServerConfig);
 
         final NamesrvController controller = new NamesrvController(namesrvConfig, nettyServerConfig);
 
         // remember all configs to prevent discard
+        // properties here is load from namesrv.properties
         controller.getConfiguration().registerConfig(properties);
 
         return controller;
