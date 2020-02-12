@@ -63,8 +63,11 @@ public class NamesrvController {
     public NamesrvController(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig) {
         this.namesrvConfig = namesrvConfig;
         this.nettyServerConfig = nettyServerConfig;
+        // kvConfigPath=/Users/claire/namesrv/kvConfig.json
         this.kvConfigManager = new KVConfigManager(this);
+        // routeInfo store contain 5 hashMap
         this.routeInfoManager = new RouteInfoManager();
+        // listen broken connection state and update routeInfo
         this.brokerHousekeepingService = new BrokerHousekeepingService(this);
         this.configuration = new Configuration(
             log,

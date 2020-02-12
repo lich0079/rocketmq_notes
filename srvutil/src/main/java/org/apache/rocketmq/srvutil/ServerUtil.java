@@ -40,6 +40,16 @@ public class ServerUtil {
         return options;
     }
 
+    /**
+     * parse Cmd Line, try print help if contain 'h'
+     *
+     * usage: mqnamesrv [-c <arg>] [-h] [-n <arg>] [-p]
+     *  -c,--configFile <arg>    Name server config properties file
+     *  -h,--help                Print help
+     *  -n,--namesrvAddr <arg>   Name server address list, eg: 192.168.0.1:9876;192.168.0.2:9876
+     *  -p,--printConfigItem     Print all config item
+     *
+     */
     public static CommandLine parseCmdLine(final String appName, String[] args, Options options,
         CommandLineParser parser) {
         HelpFormatter hf = new HelpFormatter();
